@@ -36,24 +36,26 @@ export const extension_settings = window.extension_settings;
  * Injects the rocket button next to the send button
  */
 function injectRocketButton() {
-    // Find the send button in the UI
-    const sendButton = $('#send_but');
-    if (sendButton.length === 0) {
+    console.log('Injecting rocket button'); // 添加日志
+    const sendButton = document.getElementById('send_but');
+    if (!sendButton) {
         console.error(`[${Constants.EXTENSION_NAME}] Could not find send button to inject rocket button`);
-        // 如果找不到发送按钮，创建一个模拟按钮到body上进行测试
-        const mockButton = $('<div id="send_but" style="display:none"></div>');
-        $('body').append(mockButton);
-        sendButton = $('#send_but');
+        return null;
     }
     
-    // 创建按钮容器
-    const buttonHtml = `<div id="${Constants.ID_ROCKET_BUTTON}" class="interactable secondary-button" title="快速回复菜单" aria-haspopup="true" aria-expanded="false" aria-controls="${Constants.ID_MENU}"></div>`;
+    // 创建按钮
+    const button = document.createElement('div');
+    button.id = Constants.ID_ROCKET_BUTTON;
+    button.className = 'interactable secondary-button fa-solid fa-rocket';
+    button.title = '快速回复菜单';
+    button.setAttribute('aria-haspopup', 'true');
+    button.setAttribute('aria-expanded', 'false');
+    button.setAttribute('aria-controls', Constants.ID_MENU);
     
-    // Insert the button before the send button
-    sendButton.before(buttonHtml);
+    // 插入按钮
+    sendButton.parentNode.insertBefore(button, sendButton);
     
-    // Return the reference to the newly created button
-    return document.getElementById(Constants.ID_ROCKET_BUTTON);
+    return button;
 }
 
 /**
