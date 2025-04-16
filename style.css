@@ -1,5 +1,5 @@
-/* 隐藏原有的快捷回复栏 */
-#qr--bar {
+/* 修改为使用类名控制隐藏 */
+.qr-bar-hidden {
     height: 0px !important;
     overflow: hidden !important;
 }
