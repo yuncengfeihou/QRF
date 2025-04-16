@@ -451,53 +451,62 @@ export function closeUsagePanel() {
 
 // 统一处理设置变更的函数
 export function handleSettingsChange(event) {
-    const target = event.target;
     const settings = extension_settings[Constants.EXTENSION_NAME];
     
-    // 根据设置类型处理
-    if (target.id === Constants.ID_SETTINGS_ENABLED_DROPDOWN) {
-        const isEnabled = target.value === 'true';
-        settings.enabled = isEnabled;
+    // 根据哪个元素触发了变化来更新相应的设置
+    if (event.target.id === Constants.ID_SETTINGS_ENABLED_DROPDOWN) {
+        settings.enabled = event.target.value === 'true';
         
-        if (sharedState.domElements.rocketButton) {
-            sharedState.domElements.rocketButton.style.display = isEnabled ? '' : 'none';
+        // 更新火箭按钮显示状态
+        const rocketButton = sharedState.domElements.rocketButton;
+        if (rocketButton) {
+            rocketButton.style.display = settings.enabled ? 'flex' : 'none';
         }
-        if (!isEnabled) {
-            setMenuVisible(false);
-            updateMenuVisibilityUI();
-        }
-        console.log(`[${Constants.EXTENSION_NAME}] Enabled status set to: ${isEnabled}`);
-    } 
-    else if (target.id === Constants.ID_ICON_TYPE_DROPDOWN) {
-        const iconType = target.value;
-        settings.iconType = iconType;
         
-        // 显示或隐藏自定义图标URL输入框
-        const customIconContainer = document.querySelector('.custom-icon-container');
-        if (customIconContainer) {
-            customIconContainer.style.display = iconType === Constants.ICON_TYPES.CUSTOM ? 'flex' : 'none';
+        // 处理原始快捷回复栏的显示/隐藏
+        const originalQrBar = document.getElementById('qr--bar');
+        if (originalQrBar) {
+            if (settings.enabled) {
+                originalQrBar.classList.add('qr-bar-hidden');
+            } else {
+                originalQrBar.classList.remove('qr-bar-hidden');
+            }
         }
-        // 不再实时更新预览
     } 
-    else if (target.id === Constants.ID_CUSTOM_ICON_URL) {
-        const url = target.value;
-        settings.customIconUrl = url;
-        // 不再实时更新预览
+    else if (event.target.id === Constants.ID_ICON_TYPE_DROPDOWN) {
+        settings.iconType = event.target.value;
+        
+        // 更新图标预览
+        updateIconPreview(settings.iconType);
+        
+        // 更新图标显示
+        updateIconDisplay();
     } 
-    else if (target.id === Constants.ID_COLOR_MATCH_CHECKBOX) {
-        const isMatched = target.checked;
-        settings.matchButtonColors = isMatched;
-    }
-    else if (target.id === 'icon-file-upload') {
-        // 文件上传由单独函数处理
-        return;
+    else if (event.target.id === Constants.ID_CUSTOM_ICON_URL) {
+        settings.customIconUrl = event.target.value;
+        
+        // 如果选择了自定义图标类型，更新预览
+        if (settings.iconType === Constants.ICON_TYPES.CUSTOM) {
+            updateIconPreview(Constants.ICON_TYPES.CUSTOM);
+            updateIconDisplay();
+        }
+    } 
+    else if (event.target.id === Constants.ID_COLOR_MATCH_CHECKBOX) {
+        settings.matchButtonColors = event.target.checked;
+        updateIconDisplay();
     }
     
-    // 更新图标显示
-    updateIconDisplay();
+    // 保存设置到localStorage
+    try {
+        localStorage.setItem('QRA_settings', JSON.stringify(settings));
+    } catch(e) {
+        console.error('保存到localStorage失败:', e);
+    }
     
-    // 保存设置
-    saveSettings();
+    // 如果存在context API，尝试使用它保存
+    if (typeof context !== 'undefined' && context.saveExtensionSettings) {
+        context.saveExtensionSettings();
+    }
 }
 
 // 保存设置
