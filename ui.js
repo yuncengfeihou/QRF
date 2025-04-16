@@ -11,8 +11,6 @@ export function updateButtonIconDisplay() {
     
     const settings = extension_settings[Constants.EXTENSION_NAME];
     const iconType = settings.iconType || Constants.ICON_TYPES.ROCKET;
-    
-    // 其他代码保持不变...
 }
 
 /**
