@@ -1,6 +1,6 @@
 {
-    "display_name": "QR助手F1.2",
-    "loading_order": 13,
+    "display_name": "QR助手F1.3",
+    "loading_order": 7,
     "requires": [],
     "optional": [],
     "js": "index.js",
