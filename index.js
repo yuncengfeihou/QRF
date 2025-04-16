@@ -27,22 +27,6 @@ export const extension_settings = window.extension_settings;
  * Injects the rocket button next to the send button
  */
 function injectRocketButton() {
-    // 获取当前插件启用状态
-    const settings = extension_settings[Constants.EXTENSION_NAME];
-    const enabled = settings.enabled !== false; // 默认为启用
-    
-    // 获取原始快捷回复栏
-    const originalQrBar = document.getElementById('qr--bar');
-    
-    // 根据插件启用状态切换类名
-    if (originalQrBar) {
-        if (enabled) {
-            originalQrBar.classList.add('qr-bar-hidden');
-        } else {
-            originalQrBar.classList.remove('qr-bar-hidden');
-        }
-    }
-    
     // Find the send button in the UI
     const sendButton = $('#send_but');
     if (sendButton.length === 0) {
