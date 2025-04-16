@@ -451,30 +451,66 @@ export function closeUsagePanel() {
 
 // 统一处理设置变更的函数
 export function handleSettingsChange(event) {
-    // 获取设置信息
     const settings = extension_settings[Constants.EXTENSION_NAME];
     
-    // 处理不同的设置变更
+    // 处理不同控件的设置变更
     if (event.target.id === Constants.ID_SETTINGS_ENABLED_DROPDOWN) {
         const enabled = event.target.value === 'true';
         settings.enabled = enabled;
         
-        // 更新body类
+        // 更新body类控制显示状态
         document.body.classList.remove('qra-enabled', 'qra-disabled');
         document.body.classList.add(enabled ? 'qra-enabled' : 'qra-disabled');
         
         // 更新火箭按钮显示
         const rocketButton = document.getElementById(Constants.ID_ROCKET_BUTTON);
         if (rocketButton) {
-            updateIconDisplay(); // 更新图标显示
+            rocketButton.style.display = enabled ? 'flex' : 'none';
         }
+    } 
+    else if (event.target.id === Constants.ID_ICON_TYPE_DROPDOWN) {
+        // 图标类型下拉框变更
+        settings.iconType = event.target.value;
+        
+        // 更新图标预览
+        updateIconPreview(settings.iconType);
+        
+        // 显示/隐藏自定义图标输入
+        const customIconContainer = document.querySelector('.custom-icon-container');
+        if (customIconContainer) {
+            customIconContainer.style.display = 
+                settings.iconType === Constants.ICON_TYPES.CUSTOM ? 'flex' : 'none';
+        }
+    } 
+    else if (event.target.id === Constants.ID_CUSTOM_ICON_URL) {
+        // 自定义图标URL输入
+        settings.customIconUrl = event.target.value;
+        
+        // 如果当前是自定义图标模式，则更新预览
+        if (settings.iconType === Constants.ICON_TYPES.CUSTOM) {
+            updateIconPreview(Constants.ICON_TYPES.CUSTOM);
+        }
+    } 
+    else if (event.target.id === Constants.ID_COLOR_MATCH_CHECKBOX) {
+        // 颜色匹配复选框
+        settings.matchButtonColors = event.target.checked;
     }
     
-    // 其他设置变更处理...
+    // 更新火箭按钮图标
+    const updateButtonFunction = window.updateIconDisplay || updateIconDisplay;
+    if (typeof updateButtonFunction === 'function') {
+        try {
+            updateButtonFunction();
+        } catch (e) {
+            console.error(`[${Constants.EXTENSION_NAME}] 更新图标失败:`, e);
+        }
+    }
     
     // 保存设置
     if (typeof window.quickReplyMenu !== 'undefined' && window.quickReplyMenu.saveSettings) {
         window.quickReplyMenu.saveSettings();
+    } else {
+        saveSettings();
     }
 }
 
