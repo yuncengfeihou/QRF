@@ -4,6 +4,7 @@ import { sharedState } from './state.js';
 import { createMenuElement } from './ui.js';
 import { createSettingsHtml } from './settings.js';
 import { setupEventListeners, handleQuickReplyClick, updateMenuStylesUI } from './events.js';
+import { toggleOriginalQuickReplyBar } from './ui.js';
 
 // 创建本地设置对象，如果全局对象不存在
 if (typeof window.extension_settings === 'undefined') {
@@ -373,9 +374,21 @@ function loadAndApplySettings() {
     // 更新图标预览
     updateIconPreview(settings.iconType);
 
-    // 如果禁用则隐藏按钮
-    if (settings.enabled === false && sharedState.domElements.rocketButton) {
-        sharedState.domElements.rocketButton.style.display = 'none';
+    // 处理禁用/启用状态
+    if (settings.enabled === false) {
+        // 禁用插件时：隐藏火箭按钮，显示原始快捷回复栏
+        if (sharedState.domElements.rocketButton) {
+            sharedState.domElements.rocketButton.style.display = 'none';
+        }
+        // 显示原始快捷回复栏
+        toggleOriginalQuickReplyBar(true);
+    } else {
+        // 启用插件时：显示火箭按钮，隐藏原始快捷回复栏
+        if (sharedState.domElements.rocketButton) {
+            sharedState.domElements.rocketButton.style.display = '';
+        }
+        // 隐藏原始快捷回复栏
+        toggleOriginalQuickReplyBar(false);
     }
 
     // 更新图标显示
