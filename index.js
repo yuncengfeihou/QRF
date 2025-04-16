@@ -4,6 +4,7 @@ import { sharedState } from './state.js';
 import { createMenuElement } from './ui.js';
 import { createSettingsHtml } from './settings.js';
 import { setupEventListeners, handleQuickReplyClick, updateMenuStylesUI } from './events.js';
+import { toggleOriginalQuickReplyBar, initializeOriginalQuickReplyBarStyle } from './ui.js';
 
 // 创建本地设置对象，如果全局对象不存在
 if (typeof window.extension_settings === 'undefined') {
@@ -227,6 +228,9 @@ function initializePlugin() {
                 if (customIconUrl) settings.customIconUrl = customIconUrl.value;
                 if (colorMatchCheckbox) settings.matchButtonColors = colorMatchCheckbox.checked;
 
+                // 更新原始快捷回复栏的显示状态
+                toggleOriginalQuickReplyBar(!settings.enabled);
+
                 // 更新图标
                 updateIconDisplay();
 
@@ -292,6 +296,9 @@ function initializePlugin() {
 
         // 设置文件上传事件监听器
         setupFileUploadListener();
+
+        // 初始化原始快捷回复栏的状态
+        initializeOriginalQuickReplyBarStyle();
 
         console.log(`[${Constants.EXTENSION_NAME}] Initialization complete.`);
     } catch (err) {
