@@ -1,18 +1,9 @@
 // index.js - Main Entry Point
 import * as Constants from './constants.js';
-import { sharedState, setMenuVisible } from './state.js';
-import { 
-    createMenuElement, 
-    toggleOriginalQuickReplyBar, 
-    initializeOriginalQuickReplyBarStyle,
-    updateMenuVisibilityUI 
-} from './ui.js';
+import { sharedState } from './state.js';
+import { createMenuElement } from './ui.js';
 import { createSettingsHtml } from './settings.js';
-import { 
-    setupEventListeners, 
-    handleQuickReplyClick, 
-    updateMenuStylesUI 
-} from './events.js';
+import { setupEventListeners, handleQuickReplyClick, updateMenuStylesUI } from './events.js';
 
 // 创建本地设置对象，如果全局对象不存在
 if (typeof window.extension_settings === 'undefined') {
@@ -36,26 +27,24 @@ export const extension_settings = window.extension_settings;
  * Injects the rocket button next to the send button
  */
 function injectRocketButton() {
-    console.log('Injecting rocket button'); // 添加日志
-    const sendButton = document.getElementById('send_but');
-    if (!sendButton) {
+    // Find the send button in the UI
+    const sendButton = $('#send_but');
+    if (sendButton.length === 0) {
         console.error(`[${Constants.EXTENSION_NAME}] Could not find send button to inject rocket button`);
-        return null;
+        // 如果找不到发送按钮，创建一个模拟按钮到body上进行测试
+        const mockButton = $('<div id="send_but" style="display:none"></div>');
+        $('body').append(mockButton);
+        sendButton = $('#send_but');
     }
     
-    // 创建按钮
-    const button = document.createElement('div');
-    button.id = Constants.ID_ROCKET_BUTTON;
-    button.className = 'interactable secondary-button fa-solid fa-rocket';
-    button.title = '快速回复菜单';
-    button.setAttribute('aria-haspopup', 'true');
-    button.setAttribute('aria-expanded', 'false');
-    button.setAttribute('aria-controls', Constants.ID_MENU);
+    // 创建按钮容器
+    const buttonHtml = `<div id="${Constants.ID_ROCKET_BUTTON}" class="interactable secondary-button" title="快速回复菜单" aria-haspopup="true" aria-expanded="false" aria-controls="${Constants.ID_MENU}"></div>`;
     
-    // 插入按钮
-    sendButton.parentNode.insertBefore(button, sendButton);
+    // Insert the button before the send button
+    sendButton.before(buttonHtml);
     
-    return button;
+    // Return the reference to the newly created button
+    return document.getElementById(Constants.ID_ROCKET_BUTTON);
 }
 
 /**
@@ -223,7 +212,6 @@ function initializePlugin() {
         sharedState.domElements.colorMatchCheckbox = document.getElementById(Constants.ID_COLOR_MATCH_CHECKBOX);
 
         // 创建全局对象暴露事件处理函数
-        // index.js 中的 window.quickReplyMenu.saveSettings 函数
         window.quickReplyMenu = {
             handleQuickReplyClick,
             saveSettings: function() {
@@ -233,49 +221,30 @@ function initializePlugin() {
                 const iconTypeDropdown = document.getElementById(Constants.ID_ICON_TYPE_DROPDOWN);
                 const customIconUrl = document.getElementById(Constants.ID_CUSTOM_ICON_URL);
                 const colorMatchCheckbox = document.getElementById(Constants.ID_COLOR_MATCH_CHECKBOX);
-        
-                // 更新设置值
-                if (enabledDropdown) {
-                    const isEnabled = enabledDropdown.value === 'true';
-                    settings.enabled = isEnabled;
-                    
-                    // 根据启用状态切换显示
-                    if (sharedState.domElements.rocketButton) {
-                        sharedState.domElements.rocketButton.style.display = isEnabled ? '' : 'none';
-                    }
-                    
-                    // 切换原始快捷回复栏的显示状态
-                    toggleOriginalQuickReplyBar(!isEnabled);
-                    
-                    // 如果禁用，确保菜单是关闭的
-                    if (!isEnabled) {
-                        setMenuVisible(false);
-                        updateMenuVisibilityUI();
-                    }
-                }
-        
+
+                if (enabledDropdown) settings.enabled = enabledDropdown.value === 'true';
                 if (iconTypeDropdown) settings.iconType = iconTypeDropdown.value;
                 if (customIconUrl) settings.customIconUrl = customIconUrl.value;
                 if (colorMatchCheckbox) settings.matchButtonColors = colorMatchCheckbox.checked;
-        
+
                 // 更新图标
                 updateIconDisplay();
-        
+
                 // 更新图标预览
                 updateIconPreview(settings.iconType);
-        
+
                 // 更新菜单样式
                 if (typeof updateMenuStylesUI === 'function' && settings.menuStyles) {
                     updateMenuStylesUI();
                 }
-        
-                // 保存到 localStorage 作为备份
+
+                // 尝试保存到 localStorage 作为备份
                 try {
                     localStorage.setItem('QRA_settings', JSON.stringify(settings));
                 } catch(e) {
                     console.error('保存到localStorage失败:', e);
                 }
-        
+
                 // 尝试使用 context API 保存
                 if (typeof context !== 'undefined' && context.saveExtensionSettings) {
                     try {
@@ -287,7 +256,7 @@ function initializePlugin() {
                 } else {
                     console.warn('context.saveExtensionSettings 不可用');
                 }
-        
+
                 // 显示保存成功的反馈
                 const saveStatus = document.getElementById('qr-save-status');
                 if (saveStatus) {
@@ -296,7 +265,7 @@ function initializePlugin() {
                         saveStatus.textContent = '';
                     }, 2000);
                 }
-        
+
                 const saveButton = document.getElementById('qr-save-settings');
                 if (saveButton) {
                     const originalText = saveButton.innerHTML;
@@ -307,7 +276,7 @@ function initializePlugin() {
                         saveButton.style.backgroundColor = '';
                     }, 2000);
                 }
-        
+
                 return true;
             }
         };
@@ -323,9 +292,6 @@ function initializePlugin() {
 
         // 设置文件上传事件监听器
         setupFileUploadListener();
-
-        // 初始化原始快捷回复栏的状态
-        initializeOriginalQuickReplyBarStyle();
 
         console.log(`[${Constants.EXTENSION_NAME}] Initialization complete.`);
     } catch (err) {
@@ -379,72 +345,37 @@ function setupFileUploadListener() {
 }
 
 /**
- * Loads initial settings and applies them.
+ * 加载设置
  */
 function loadAndApplySettings() {
-    // 确保设置对象存在并设置默认值
     const settings = window.extension_settings[Constants.EXTENSION_NAME];
 
-    // 设置默认值
-    settings.enabled = settings.enabled !== false; // 默认启用
-    settings.iconType = settings.iconType || Constants.ICON_TYPES.ROCKET; // 默认火箭图标
-    settings.customIconUrl = settings.customIconUrl || ''; // 默认空URL
-    settings.matchButtonColors = settings.matchButtonColors !== false; // 默认匹配颜色
-
-    // 应用设置到UI元素
+    // 更新UI元素
     const dropdown = document.getElementById(Constants.ID_SETTINGS_ENABLED_DROPDOWN);
-    if (dropdown) {
-        dropdown.value = String(settings.enabled);
+    if (dropdown) dropdown.value = String(settings.enabled);
+
+    const iconType = document.getElementById(Constants.ID_ICON_TYPE_DROPDOWN);
+    if (iconType) iconType.value = settings.iconType || Constants.ICON_TYPES.ROCKET;
+
+    const customUrl = document.getElementById(Constants.ID_CUSTOM_ICON_URL);
+    if (customUrl) customUrl.value = settings.customIconUrl || '';
+
+    const colorMatch = document.getElementById(Constants.ID_COLOR_MATCH_CHECKBOX);
+    if (colorMatch) colorMatch.checked = settings.matchButtonColors !== false;
+
+    // 显示/隐藏自定义URL输入框
+    const customContainer = document.querySelector('.custom-icon-container');
+    if (customContainer) {
+        customContainer.style.display =
+            settings.iconType === Constants.ICON_TYPES.CUSTOM ? 'flex' : 'none';
     }
-    
-    // 设置图标类型下拉框
-    const iconTypeDropdown = document.getElementById(Constants.ID_ICON_TYPE_DROPDOWN);
-    if (iconTypeDropdown) {
-        iconTypeDropdown.value = settings.iconType;
-        
-        // 显示或隐藏自定义图标URL输入框
-        const customIconContainer = document.querySelector('.custom-icon-container');
-        if (customIconContainer) {
-            customIconContainer.style.display = settings.iconType === Constants.ICON_TYPES.CUSTOM ? 'flex' : 'none';
-        }
-    }
-    
-    // 设置自定义图标URL
-    const customIconUrl = document.getElementById(Constants.ID_CUSTOM_ICON_URL);
-    if (customIconUrl) {
-        customIconUrl.value = settings.customIconUrl;
-    }
-    
-    // 设置颜色匹配复选框
-    const colorMatchCheckbox = document.getElementById(Constants.ID_COLOR_MATCH_CHECKBOX);
-    if (colorMatchCheckbox) {
-        colorMatchCheckbox.checked = settings.matchButtonColors;
-    }
-    
-    // 设置文件上传事件监听器
-    setupSettingsEventListeners();
-    
-    // 处理禁用/启用状态
-    if (settings.enabled === false) {
-        // 禁用插件时：隐藏火箭按钮，显示原始快捷回复栏
-        if (sharedState.domElements.rocketButton) {
-            sharedState.domElements.rocketButton.style.display = 'none';
-        }
-        // 显示原始快捷回复栏
-        const originalBar = document.getElementById('qr--bar');
-        if (originalBar) {
-            originalBar.classList.remove('qr-bar-hidden');
-        }
-    } else {
-        // 启用插件时：显示火箭按钮，隐藏原始快捷回复栏
-        if (sharedState.domElements.rocketButton) {
-            sharedState.domElements.rocketButton.style.display = '';
-        }
-        // 隐藏原始快捷回复栏
-        const originalBar = document.getElementById('qr--bar');
-        if (originalBar) {
-            originalBar.classList.add('qr-bar-hidden');
-        }
+
+    // 更新图标预览
+    updateIconPreview(settings.iconType);
+
+    // 如果禁用则隐藏按钮
+    if (settings.enabled === false && sharedState.domElements.rocketButton) {
+        sharedState.domElements.rocketButton.style.display = 'none';
     }
 
     // 更新图标显示
@@ -457,8 +388,6 @@ function loadAndApplySettings() {
         // 如果没有定义菜单样式，设置默认值
         settings.menuStyles = JSON.parse(JSON.stringify(Constants.DEFAULT_MENU_STYLES));
     }
-
-    console.log(`[${Constants.EXTENSION_NAME}] Settings loaded and applied. Enabled: ${settings.enabled}`);
 }
 
 // 确保 jQuery 可用 - 使用原生 js 备用
