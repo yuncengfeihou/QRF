@@ -1,13 +1,18 @@
 // index.js - Main Entry Point
 import * as Constants from './constants.js';
-import { sharedState } from './state.js';
-import { createMenuElement } from './ui.js';
+import { sharedState, setMenuVisible } from './state.js';
+import { 
+    createMenuElement, 
+    toggleOriginalQuickReplyBar, 
+    initializeOriginalQuickReplyBarStyle,
+    updateMenuVisibilityUI 
+} from './ui.js';
 import { createSettingsHtml } from './settings.js';
-import { setupEventListeners, handleQuickReplyClick, updateMenuStylesUI } from './events.js';
-import { toggleOriginalQuickReplyBar, initializeOriginalQuickReplyBarStyle } from './ui.js';
-import { toggleOriginalQuickReplyBar } from './ui.js';
-import { setMenuVisible } from './state.js';
-import { updateMenuVisibilityUI } from './ui.js';
+import { 
+    setupEventListeners, 
+    handleQuickReplyClick, 
+    updateMenuStylesUI 
+} from './events.js';
 
 // 创建本地设置对象，如果全局对象不存在
 if (typeof window.extension_settings === 'undefined') {
