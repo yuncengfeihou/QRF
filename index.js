@@ -349,18 +349,6 @@ function setupFileUploadListener() {
  */
 function loadAndApplySettings() {
     const settings = window.extension_settings[Constants.EXTENSION_NAME];
-    const enabled = settings.enabled !== false;
-
-    console.log(`[${Constants.EXTENSION_NAME}] 加载设置，当前插件状态: ${enabled ? '启用' : '禁用'}`);
-
-    // 更新body类名，用于CSS控制
-    if (enabled) {
-        document.body.classList.add(Constants.CLASS_ENABLED);
-        document.body.classList.remove(Constants.CLASS_DISABLED);
-    } else {
-        document.body.classList.add(Constants.CLASS_DISABLED);
-        document.body.classList.remove(Constants.CLASS_ENABLED);
-    }
 
     // 更新UI元素
     const dropdown = document.getElementById(Constants.ID_SETTINGS_ENABLED_DROPDOWN);
@@ -399,6 +387,17 @@ function loadAndApplySettings() {
     } else if (!settings.menuStyles) {
         // 如果没有定义菜单样式，设置默认值
         settings.menuStyles = JSON.parse(JSON.stringify(Constants.DEFAULT_MENU_STYLES));
+    }
+}
+
+// 确保 jQuery 可用 - 使用原生 js 备用
+function onReady(callback) {
+    if (typeof jQuery !== 'undefined') {
+        jQuery(callback);
+    } else if (document.readyState === "complete" || document.readyState === "interactive") {
+        setTimeout(callback, 1);
+    } else {
+        document.addEventListener("DOMContentLoaded", callback);
     }
 }
 
