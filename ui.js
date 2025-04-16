@@ -12,7 +12,31 @@ export function updateButtonIconDisplay() {
     const settings = extension_settings[Constants.EXTENSION_NAME];
     const iconType = settings.iconType || Constants.ICON_TYPES.ROCKET;
     
-    // 其他代码保持不变...
+}
+
+export function toggleOriginalQuickReplyBar(show) {
+    const originalBar = document.getElementById('qr--bar');
+    if (originalBar) {
+        if (show) {
+            originalBar.classList.remove('qr-bar-hidden');
+        } else {
+            originalBar.classList.add('qr-bar-hidden');
+        }
+    }
+}
+
+export function initializeOriginalQuickReplyBarStyle() {
+    const originalBar = document.getElementById('qr--bar');
+    if (originalBar) {
+        const settings = window.extension_settings[Constants.EXTENSION_NAME];
+        if (settings && settings.enabled !== false) {
+            // 如果插件启用，添加隐藏类
+            originalBar.classList.add('qr-bar-hidden');
+        } else {
+            // 如果插件禁用，移除隐藏类
+            originalBar.classList.remove('qr-bar-hidden');
+        }
+    }
 }
 
 /**
