@@ -3,6 +3,8 @@ import { extension_settings } from "./index.js";
 import * as Constants from './constants.js';
 import { sharedState, setMenuVisible } from './state.js';
 import { updateMenuVisibilityUI } from './ui.js';
+import { toggleOriginalQuickReplyBar } from './ui.js';
+
 
 // 在settings.js中添加自己的updateIconDisplay实现，避免循环依赖
 function updateIconDisplay() {
@@ -465,9 +467,12 @@ export function handleSettingsChange(event) {
         if (!isEnabled) {
             setMenuVisible(false);
             updateMenuVisibilityUI();
+            toggleOriginalQuickReplyBar(true);  // 显示原始快捷回复栏
+        } else {
+            toggleOriginalQuickReplyBar(false); // 隐藏原始快捷回复栏
         }
         console.log(`[${Constants.EXTENSION_NAME}] Enabled status set to: ${isEnabled}`);
-    } 
+    }
     else if (target.id === Constants.ID_ICON_TYPE_DROPDOWN) {
         const iconType = target.value;
         settings.iconType = iconType;
