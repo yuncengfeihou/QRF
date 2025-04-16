@@ -12,14 +12,7 @@ export function updateButtonIconDisplay() {
     const settings = extension_settings[Constants.EXTENSION_NAME];
     const iconType = settings.iconType || Constants.ICON_TYPES.ROCKET;
     
-}
-
-export function toggleOriginalQuickReplyBar(show) {
-    const originalBar = document.getElementById('qr--bar');
-    if (originalBar) {
-        originalBar.style.height = show ? '' : '0px';
-        originalBar.style.overflow = show ? '' : 'hidden';
-    }
+    // 其他代码保持不变...
 }
 
 /**
