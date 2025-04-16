@@ -1,18 +1,7 @@
-/* 插件启用时隐藏原始快捷回复栏 */
-body.qr-menu-enabled #qr--bar {
+/* 隐藏原有的快捷回复栏 */
+#qr--bar {
     height: 0px !important;
     overflow: hidden !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-    visibility: hidden !important;
-}
-
-/* 插件禁用时恢复原始快捷回复栏 */
-body.qr-menu-disabled #qr--bar {
-    height: initial !important;
-    overflow: initial !important;
-    visibility: visible !important;
 }
 
 /* --- 快捷回复按钮 --- */
