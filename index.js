@@ -452,6 +452,14 @@ onReady(() => {
         // 尝试从localStorage加载设置
         loadSettingsFromLocalStorage();
 
+        // 根据设置添加对应的类到body
+        const settings = extension_settings[Constants.EXTENSION_NAME];
+        const enabled = settings.enabled !== false; // 默认为启用
+        
+        // 移除可能存在的类，然后添加当前状态的类
+        document.body.classList.remove('qra-enabled', 'qra-disabled');
+        document.body.classList.add(enabled ? 'qra-enabled' : 'qra-disabled');
+
         // 添加设置面板内容
         document.getElementById('extensions_settings').innerHTML += createSettingsHtml();
 
