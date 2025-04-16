@@ -5,6 +5,9 @@ import { createMenuElement } from './ui.js';
 import { createSettingsHtml } from './settings.js';
 import { setupEventListeners, handleQuickReplyClick, updateMenuStylesUI } from './events.js';
 import { toggleOriginalQuickReplyBar, initializeOriginalQuickReplyBarStyle } from './ui.js';
+import { toggleOriginalQuickReplyBar } from './ui.js';
+import { setMenuVisible } from './state.js';
+import { updateMenuVisibilityUI } from './ui.js';
 
 // 创建本地设置对象，如果全局对象不存在
 if (typeof window.extension_settings === 'undefined') {
@@ -213,6 +216,7 @@ function initializePlugin() {
         sharedState.domElements.colorMatchCheckbox = document.getElementById(Constants.ID_COLOR_MATCH_CHECKBOX);
 
         // 创建全局对象暴露事件处理函数
+        // index.js 中的 window.quickReplyMenu.saveSettings 函数
         window.quickReplyMenu = {
             handleQuickReplyClick,
             saveSettings: function() {
@@ -222,33 +226,49 @@ function initializePlugin() {
                 const iconTypeDropdown = document.getElementById(Constants.ID_ICON_TYPE_DROPDOWN);
                 const customIconUrl = document.getElementById(Constants.ID_CUSTOM_ICON_URL);
                 const colorMatchCheckbox = document.getElementById(Constants.ID_COLOR_MATCH_CHECKBOX);
-
-                if (enabledDropdown) settings.enabled = enabledDropdown.value === 'true';
+        
+                // 更新设置值
+                if (enabledDropdown) {
+                    const isEnabled = enabledDropdown.value === 'true';
+                    settings.enabled = isEnabled;
+                    
+                    // 根据启用状态切换显示
+                    if (sharedState.domElements.rocketButton) {
+                        sharedState.domElements.rocketButton.style.display = isEnabled ? '' : 'none';
+                    }
+                    
+                    // 切换原始快捷回复栏的显示状态
+                    toggleOriginalQuickReplyBar(!isEnabled);
+                    
+                    // 如果禁用，确保菜单是关闭的
+                    if (!isEnabled) {
+                        setMenuVisible(false);
+                        updateMenuVisibilityUI();
+                    }
+                }
+        
                 if (iconTypeDropdown) settings.iconType = iconTypeDropdown.value;
                 if (customIconUrl) settings.customIconUrl = customIconUrl.value;
                 if (colorMatchCheckbox) settings.matchButtonColors = colorMatchCheckbox.checked;
-
-                // 更新原始快捷回复栏的显示状态
-                toggleOriginalQuickReplyBar(!settings.enabled);
-
+        
                 // 更新图标
                 updateIconDisplay();
-
+        
                 // 更新图标预览
                 updateIconPreview(settings.iconType);
-
+        
                 // 更新菜单样式
                 if (typeof updateMenuStylesUI === 'function' && settings.menuStyles) {
                     updateMenuStylesUI();
                 }
-
-                // 尝试保存到 localStorage 作为备份
+        
+                // 保存到 localStorage 作为备份
                 try {
                     localStorage.setItem('QRA_settings', JSON.stringify(settings));
                 } catch(e) {
                     console.error('保存到localStorage失败:', e);
                 }
-
+        
                 // 尝试使用 context API 保存
                 if (typeof context !== 'undefined' && context.saveExtensionSettings) {
                     try {
@@ -260,7 +280,7 @@ function initializePlugin() {
                 } else {
                     console.warn('context.saveExtensionSettings 不可用');
                 }
-
+        
                 // 显示保存成功的反馈
                 const saveStatus = document.getElementById('qr-save-status');
                 if (saveStatus) {
@@ -269,7 +289,7 @@ function initializePlugin() {
                         saveStatus.textContent = '';
                     }, 2000);
                 }
-
+        
                 const saveButton = document.getElementById('qr-save-settings');
                 if (saveButton) {
                     const originalText = saveButton.innerHTML;
@@ -280,7 +300,7 @@ function initializePlugin() {
                         saveButton.style.backgroundColor = '';
                     }, 2000);
                 }
-
+        
                 return true;
             }
         };
