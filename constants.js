@@ -2,6 +2,9 @@
 
 export const EXTENSION_NAME = "quick-reply-menu";
 
+export const CLASS_ENABLED = 'qr-menu-enabled';
+export const CLASS_DISABLED = 'qr-menu-disabled';
+
 // --- DOM Element IDs ---
 export const ID_BUTTON = 'quick-reply-menu-button'; // 保留用于向后兼容
 export const ID_ROCKET_BUTTON = 'quick-reply-rocket-button'; // 新的火箭按钮ID
