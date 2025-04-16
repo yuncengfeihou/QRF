@@ -365,6 +365,11 @@ function setupFileUploadListener() {
  */
 function loadAndApplySettings() {
     const settings = window.extension_settings[Constants.EXTENSION_NAME];
+    const enabled = settings.enabled !== false; // 默认为启用
+    
+    // 更新body类控制显示状态
+    document.body.classList.remove('qra-enabled', 'qra-disabled');
+    document.body.classList.add(enabled ? 'qra-enabled' : 'qra-disabled');
 
     // 更新UI元素
     const dropdown = document.getElementById(Constants.ID_SETTINGS_ENABLED_DROPDOWN);
@@ -379,7 +384,7 @@ function loadAndApplySettings() {
     const colorMatch = document.getElementById(Constants.ID_COLOR_MATCH_CHECKBOX);
     if (colorMatch) colorMatch.checked = settings.matchButtonColors !== false;
 
-    // 显示/隐藏自定义URL输入框
+    // 设置/隐藏自定义URL输入框
     const customContainer = document.querySelector('.custom-icon-container');
     if (customContainer) {
         customContainer.style.display =
@@ -390,8 +395,8 @@ function loadAndApplySettings() {
     updateIconPreview(settings.iconType);
 
     // 如果禁用则隐藏按钮
-    if (settings.enabled === false && sharedState.domElements.rocketButton) {
-        sharedState.domElements.rocketButton.style.display = 'none';
+    if (sharedState.domElements.rocketButton) {
+        sharedState.domElements.rocketButton.style.display = enabled ? 'flex' : 'none';
     }
 
     // 更新图标显示
