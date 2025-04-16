@@ -468,6 +468,9 @@ onReady(() => {
 
         // 初始化插件
         initializePlugin();
+        
+        // 确保初始化后立即应用设置
+        loadAndApplySettings(); 
     } catch (err) {
         console.error(`[${Constants.EXTENSION_NAME}] 启动失败:`, err);
     }
