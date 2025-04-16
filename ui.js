@@ -15,29 +15,32 @@ export function updateButtonIconDisplay() {
 }
 
 export function toggleOriginalQuickReplyBar(show) {
+    console.log('Toggling original quick reply bar:', show); // 添加日志
     const originalBar = document.getElementById('qr--bar');
     if (originalBar) {
         if (show) {
             originalBar.classList.remove('qr-bar-hidden');
+            originalBar.style.display = '';
+            originalBar.style.height = '';
+            originalBar.style.overflow = '';
         } else {
             originalBar.classList.add('qr-bar-hidden');
+            originalBar.style.display = 'none';
+            originalBar.style.height = '0px';
+            originalBar.style.overflow = 'hidden';
         }
+    } else {
+        console.warn('Original quick reply bar not found!');
     }
 }
 
+
+// 添加初始化函数
 export function initializeOriginalQuickReplyBarStyle() {
-    const originalBar = document.getElementById('qr--bar');
-    if (originalBar) {
-        const settings = window.extension_settings[Constants.EXTENSION_NAME];
-        if (settings && settings.enabled !== false) {
-            // 如果插件启用，添加隐藏类
-            originalBar.classList.add('qr-bar-hidden');
-        } else {
-            // 如果插件禁用，移除隐藏类
-            originalBar.classList.remove('qr-bar-hidden');
-        }
-    }
-}
+    console.log('Initializing original quick reply bar style'); // 添加日志
+    const settings = window.extension_settings[Constants.EXTENSION_NAME];
+    const isEnabled = settings?.enabled !== false;
+    t
 
 /**
  * Creates the main quick reply button (legacy, kept for reference).
