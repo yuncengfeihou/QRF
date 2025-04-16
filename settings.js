@@ -456,21 +456,21 @@ export function handleSettingsChange(event) {
     // 根据哪个元素触发了变化来更新相应的设置
     if (event.target.id === Constants.ID_SETTINGS_ENABLED_DROPDOWN) {
         settings.enabled = event.target.value === 'true';
+        console.log(`[${Constants.EXTENSION_NAME}] 设置已更改: 插件${settings.enabled ? '启用' : '禁用'}`);
+        
+        // 更新body类名，用于CSS控制
+        if (settings.enabled) {
+            document.body.classList.add(Constants.CLASS_ENABLED);
+            document.body.classList.remove(Constants.CLASS_DISABLED);
+        } else {
+            document.body.classList.add(Constants.CLASS_DISABLED);
+            document.body.classList.remove(Constants.CLASS_ENABLED);
+        }
         
         // 更新火箭按钮显示状态
         const rocketButton = sharedState.domElements.rocketButton;
         if (rocketButton) {
             rocketButton.style.display = settings.enabled ? 'flex' : 'none';
-        }
-        
-        // 处理原始快捷回复栏的显示/隐藏
-        const originalQrBar = document.getElementById('qr--bar');
-        if (originalQrBar) {
-            if (settings.enabled) {
-                originalQrBar.classList.add('qr-bar-hidden');
-            } else {
-                originalQrBar.classList.remove('qr-bar-hidden');
-            }
         }
     } 
     else if (event.target.id === Constants.ID_ICON_TYPE_DROPDOWN) {
