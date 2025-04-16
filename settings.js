@@ -451,61 +451,30 @@ export function closeUsagePanel() {
 
 // 统一处理设置变更的函数
 export function handleSettingsChange(event) {
+    // 获取设置信息
     const settings = extension_settings[Constants.EXTENSION_NAME];
     
-    // 根据哪个元素触发了变化来更新相应的设置
+    // 处理不同的设置变更
     if (event.target.id === Constants.ID_SETTINGS_ENABLED_DROPDOWN) {
-        settings.enabled = event.target.value === 'true';
+        const enabled = event.target.value === 'true';
+        settings.enabled = enabled;
         
-        // 更新火箭按钮显示状态
-        const rocketButton = sharedState.domElements.rocketButton;
+        // 更新body类
+        document.body.classList.remove('qra-enabled', 'qra-disabled');
+        document.body.classList.add(enabled ? 'qra-enabled' : 'qra-disabled');
+        
+        // 更新火箭按钮显示
+        const rocketButton = document.getElementById(Constants.ID_ROCKET_BUTTON);
         if (rocketButton) {
-            rocketButton.style.display = settings.enabled ? 'flex' : 'none';
+            updateIconDisplay(); // 更新图标显示
         }
-        
-        // 处理原始快捷回复栏的显示/隐藏
-        const originalQrBar = document.getElementById('qr--bar');
-        if (originalQrBar) {
-            if (settings.enabled) {
-                originalQrBar.classList.add('qr-bar-hidden');
-            } else {
-                originalQrBar.classList.remove('qr-bar-hidden');
-            }
-        }
-    } 
-    else if (event.target.id === Constants.ID_ICON_TYPE_DROPDOWN) {
-        settings.iconType = event.target.value;
-        
-        // 更新图标预览
-        updateIconPreview(settings.iconType);
-        
-        // 更新图标显示
-        updateIconDisplay();
-    } 
-    else if (event.target.id === Constants.ID_CUSTOM_ICON_URL) {
-        settings.customIconUrl = event.target.value;
-        
-        // 如果选择了自定义图标类型，更新预览
-        if (settings.iconType === Constants.ICON_TYPES.CUSTOM) {
-            updateIconPreview(Constants.ICON_TYPES.CUSTOM);
-            updateIconDisplay();
-        }
-    } 
-    else if (event.target.id === Constants.ID_COLOR_MATCH_CHECKBOX) {
-        settings.matchButtonColors = event.target.checked;
-        updateIconDisplay();
     }
     
-    // 保存设置到localStorage
-    try {
-        localStorage.setItem('QRA_settings', JSON.stringify(settings));
-    } catch(e) {
-        console.error('保存到localStorage失败:', e);
-    }
+    // 其他设置变更处理...
     
-    // 如果存在context API，尝试使用它保存
-    if (typeof context !== 'undefined' && context.saveExtensionSettings) {
-        context.saveExtensionSettings();
+    // 保存设置
+    if (typeof window.quickReplyMenu !== 'undefined' && window.quickReplyMenu.saveSettings) {
+        window.quickReplyMenu.saveSettings();
     }
 }
 
