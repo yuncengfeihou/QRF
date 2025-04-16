@@ -1,7 +1,19 @@
-/* 隐藏原有的快捷回复栏 - 使用类控制 */
-#qr--bar.qr-bar-hidden {
+/* 插件启用时隐藏原始快捷回复栏 */
+body.qra-enabled #qr--bar {
     height: 0px !important;
     overflow: hidden !important;
+}
+
+/* 插件禁用时显示原始快捷回复栏 */
+body.qra-disabled #qr--bar {
+    /* 恢复默认样式 */
+    height: auto !important;
+    overflow: visible !important;
+}
+
+/* 插件禁用时隐藏火箭按钮 */
+body.qra-disabled #quick-reply-rocket-button {
+    display: none !important;
 }
 
 /* --- 快捷回复按钮 --- */
