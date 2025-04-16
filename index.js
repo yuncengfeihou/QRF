@@ -352,37 +352,72 @@ function setupFileUploadListener() {
 }
 
 /**
- * 加载设置
+ * Loads initial settings and applies them.
  */
 function loadAndApplySettings() {
+    // 确保设置对象存在并设置默认值
     const settings = window.extension_settings[Constants.EXTENSION_NAME];
 
-    // 更新UI元素
+    // 设置默认值
+    settings.enabled = settings.enabled !== false; // 默认启用
+    settings.iconType = settings.iconType || Constants.ICON_TYPES.ROCKET; // 默认火箭图标
+    settings.customIconUrl = settings.customIconUrl || ''; // 默认空URL
+    settings.matchButtonColors = settings.matchButtonColors !== false; // 默认匹配颜色
+
+    // 应用设置到UI元素
     const dropdown = document.getElementById(Constants.ID_SETTINGS_ENABLED_DROPDOWN);
-    if (dropdown) dropdown.value = String(settings.enabled);
-
-    const iconType = document.getElementById(Constants.ID_ICON_TYPE_DROPDOWN);
-    if (iconType) iconType.value = settings.iconType || Constants.ICON_TYPES.ROCKET;
-
-    const customUrl = document.getElementById(Constants.ID_CUSTOM_ICON_URL);
-    if (customUrl) customUrl.value = settings.customIconUrl || '';
-
-    const colorMatch = document.getElementById(Constants.ID_COLOR_MATCH_CHECKBOX);
-    if (colorMatch) colorMatch.checked = settings.matchButtonColors !== false;
-
-    // 显示/隐藏自定义URL输入框
-    const customContainer = document.querySelector('.custom-icon-container');
-    if (customContainer) {
-        customContainer.style.display =
-            settings.iconType === Constants.ICON_TYPES.CUSTOM ? 'flex' : 'none';
+    if (dropdown) {
+        dropdown.value = String(settings.enabled);
     }
-
-    // 更新图标预览
-    updateIconPreview(settings.iconType);
-
-    // 如果禁用则隐藏按钮
-    if (settings.enabled === false && sharedState.domElements.rocketButton) {
-        sharedState.domElements.rocketButton.style.display = 'none';
+    
+    // 设置图标类型下拉框
+    const iconTypeDropdown = document.getElementById(Constants.ID_ICON_TYPE_DROPDOWN);
+    if (iconTypeDropdown) {
+        iconTypeDropdown.value = settings.iconType;
+        
+        // 显示或隐藏自定义图标URL输入框
+        const customIconContainer = document.querySelector('.custom-icon-container');
+        if (customIconContainer) {
+            customIconContainer.style.display = settings.iconType === Constants.ICON_TYPES.CUSTOM ? 'flex' : 'none';
+        }
+    }
+    
+    // 设置自定义图标URL
+    const customIconUrl = document.getElementById(Constants.ID_CUSTOM_ICON_URL);
+    if (customIconUrl) {
+        customIconUrl.value = settings.customIconUrl;
+    }
+    
+    // 设置颜色匹配复选框
+    const colorMatchCheckbox = document.getElementById(Constants.ID_COLOR_MATCH_CHECKBOX);
+    if (colorMatchCheckbox) {
+        colorMatchCheckbox.checked = settings.matchButtonColors;
+    }
+    
+    // 设置文件上传事件监听器
+    setupSettingsEventListeners();
+    
+    // 处理禁用/启用状态
+    if (settings.enabled === false) {
+        // 禁用插件时：隐藏火箭按钮，显示原始快捷回复栏
+        if (sharedState.domElements.rocketButton) {
+            sharedState.domElements.rocketButton.style.display = 'none';
+        }
+        // 显示原始快捷回复栏
+        const originalBar = document.getElementById('qr--bar');
+        if (originalBar) {
+            originalBar.classList.remove('qr-bar-hidden');
+        }
+    } else {
+        // 启用插件时：显示火箭按钮，隐藏原始快捷回复栏
+        if (sharedState.domElements.rocketButton) {
+            sharedState.domElements.rocketButton.style.display = '';
+        }
+        // 隐藏原始快捷回复栏
+        const originalBar = document.getElementById('qr--bar');
+        if (originalBar) {
+            originalBar.classList.add('qr-bar-hidden');
+        }
     }
 
     // 更新图标显示
@@ -395,6 +430,8 @@ function loadAndApplySettings() {
         // 如果没有定义菜单样式，设置默认值
         settings.menuStyles = JSON.parse(JSON.stringify(Constants.DEFAULT_MENU_STYLES));
     }
+
+    console.log(`[${Constants.EXTENSION_NAME}] Settings loaded and applied. Enabled: ${settings.enabled}`);
 }
 
 // 确保 jQuery 可用 - 使用原生 js 备用
