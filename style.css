@@ -1,22 +1,23 @@
-/* 修改为使用类名控制隐藏 */
-.qr-bar-hidden {
+/* 修改原有的样式 */
+#qr--bar.qr-bar-hidden {
     height: 0px !important;
     overflow: hidden !important;
+    display: none !important;
 }
 
-/* --- 快捷回复按钮 --- */
+/* 确保火箭按钮样式正确 */
 #quick-reply-rocket-button {
-    color: var(--button-text-color, #a0a0a0); /* 使用变量或默认为灰色 */
-    font-size: 1.2em; /* 图标大小 */
-    line-height: var(--buttons-bar-height); /* 行高与按钮栏一致 */
-    height: var(--buttons-bar-height);      /* 高度与按钮栏一致 */
-    display: flex;         /* 使用 Flexbox 布局 */
-    align-items: center;   /* 垂直居中图标 */
-    justify-content: center; /* 水平居中 */
-    margin-right: 4px;     /* 右边距 */
-    cursor: pointer;       /* 鼠标样式：手型 */
-    transition: all 0.2s;  /* 过渡效果 */
-    width: 32px;          /* 固定宽度 */
+    color: var(--button-text-color, #a0a0a0);
+    font-size: 1.2em;
+    line-height: var(--buttons-bar-height);
+    height: var(--buttons-bar-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 32px;
 }
 
 #quick-reply-rocket-button:hover {
