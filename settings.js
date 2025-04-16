@@ -3,7 +3,6 @@ import { extension_settings } from "./index.js";
 import * as Constants from './constants.js';
 import { sharedState, setMenuVisible } from './state.js';
 import { updateMenuVisibilityUI } from './ui.js';
-import { toggleOriginalQuickReplyBar } from './ui.js';
 
 // 在settings.js中添加自己的updateIconDisplay实现，避免循环依赖
 function updateIconDisplay() {
