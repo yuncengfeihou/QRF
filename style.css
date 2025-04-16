@@ -1,5 +1,5 @@
-/* 隐藏原有的快捷回复栏 */
-#qr--bar {
+/* 隐藏原有的快捷回复栏 - 使用类控制 */
+#qr--bar.qr-bar-hidden {
     height: 0px !important;
     overflow: hidden !important;
 }
